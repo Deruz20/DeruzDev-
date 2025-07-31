@@ -1,5 +1,7 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
+import * as React from 'react';
 import {
   CommandDialog,
   CommandEmpty,
@@ -8,62 +10,61 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from '~/components/ui/Command';
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+} from '@/components/ui/command';
 
-interface CommandBarProps {
-  isOpen: boolean;
-  setOpen: (open: boolean) => void;
-}
-
-export function CommandBar({ isOpen, setOpen }: CommandBarProps) {
-  const [open, setInternalOpen] = useState(isOpen);
+export function CommandBar() {
+  const [open, setOpen] = React.useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    setInternalOpen(isOpen);
-  }, [isOpen]);
+  React.useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === 'j' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setOpen((open) => !open);
+      }
+    };
 
-  const handleClose = () => {
-    setInternalOpen(false);
+    document.addEventListener('keydown', down);
+    return () => document.removeEventListener('keydown', down);
+  }, []);
+
+  const runCommand = React.useCallback((command: () => unknown) => {
     setOpen(false);
-  };
-
-  const runCommand = (callback: () => void) => {
-    handleClose();
-    callback();
-  };
+    command();
+  }, []);
 
   return (
-    <CommandDialog open={open} onOpenChange={handleClose}>
-      <CommandInput placeholder="Type a command or search..." />
-      <CommandList>
-        <CommandEmpty>No results found.</CommandEmpty>
-        <CommandGroup heading="Navigation">
-          <CommandItem onSelect={() => runCommand(() => router.push('/dashboard'))}>
-            <span className="mr-2">📊</span> Dashboard
-          </CommandItem>
-          <CommandItem onSelect={() => runCommand(() => router.push('/invoices'))}>
-            <span className="mr-2">🧾</span> Invoices
-          </CommandItem>
-          <CommandItem onSelect={() => runCommand(() => router.push('/expenses'))}>
-            <span className="mr-2">💸</span> Expenses
-          </CommandItem>
-          <CommandItem onSelect={() => runCommand(() => router.push('/inventory'))}>
-            <span className="mr-2">📦</span> Inventory
-          </CommandItem>
-        </CommandGroup>
-        <CommandSeparator />
-        <CommandGroup heading="Actions">
-          <CommandItem onSelect={() => runCommand(() => router.push('/invoices/new'))}>
-            <span className="mr-2">➕</span> Create New Invoice
-          </CommandItem>
-          <CommandItem onSelect={() => runCommand(() => router.push('/expenses/new'))}>
-            <span className="mr-2">➕</span> Log New Expense
-          </CommandItem>
-        </CommandGroup>
-      </CommandList>
-    </CommandDialog>
+    <>
+      <p className="fixed bottom-2 right-2 z-50 text-sm text-gray-500">
+        Press{' '}
+        <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+          <span className="text-xs">⌘</span>J
+        </kbd>{' '}
+        to open
+      </p>
+      <CommandDialog open={open} onOpenChange={setOpen}>
+        <CommandInput placeholder="Search everything..." />
+        <CommandList>
+          <CommandEmpty>No results found.</CommandEmpty>
+          <CommandGroup heading="Navigation">
+            <CommandItem
+              onSelect={() => runCommand(() => router.push(`/dashboard`))}
+            >
+              <span>Dashboard</span>
+            </CommandItem>
+          </CommandGroup>
+          <CommandSeparator />
+          <CommandGroup heading="Actions">
+            <CommandItem
+              onSelect={() =>
+                runCommand(() => router.push(`/invoices/new`))
+              }
+            >
+              <span>Create New Invoice</span>
+            </CommandItem>
+          </CommandGroup>
+        </CommandList>
+      </CommandDialog>
+    </>
   );
 }
