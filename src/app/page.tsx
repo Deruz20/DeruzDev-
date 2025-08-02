@@ -1,58 +1,86 @@
-"use client"
+import { CommandBar } from "@/components/CommandBar";
+import Link from "next/link";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  AnimatedNumber,
+  AnimatedNumberProps,
+} from "@/components/ui/animated-number";
 
-import React from "react"
-import { useSession, signIn } from "next-auth/react"
-import { useRouter } from "next/navigation"
-import { useEffect } from "react"
-
-export default function Home() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
-
-  useEffect(() => {
-    if (session) {
-      router.push('/dashboard')
-    }
-  }, [session, router])
-
-  if (status === "loading") {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
-      </div>
-    )
-  }
-
+function StatCard(props: {
+  title: string;
+  value: AnimatedNumberProps["value"];
+  prefix?: AnimatedNumberProps["prefix"];
+  suffix?: AnimatedNumberProps["suffix"];
+  description?: string;
+}) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">OmniTrack</h1>
-          <p className="text-gray-600">Universal Business Management</p>
-        </div>
-        
-        <div className="space-y-4">
-          <button
-            onClick={() => signIn('google')}
-            className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
-          >
-            Sign in with Google
-          </button>
-          
-          <button
-            onClick={() => signIn('credentials')}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
-          >
-            Sign in with Email
-          </button>
-        </div>
-        
-        <div className="mt-8 text-center">
-          <p className="text-sm text-gray-500">
-            Manage your invoices, expenses, and inventory all in one place
+    <Card className="flex flex-col">
+      <CardHeader>
+        <CardTitle>{props.title}</CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-2">
+        <AnimatedNumber
+          value={props.value}
+          prefix={props.prefix}
+          suffix={props.suffix}
+        />
+        {props.description && (
+          <p className="text-sm text-muted-foreground">
+            {props.description}
           </p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+export default function Dashboard() {
+  return (
+    <div className="flex min-h-screen w-full flex-col bg-muted/40">
+      <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 sm:px-6">
+        <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
+          <Link
+            href="#"
+            className="flex items-center gap-2 text-lg font-semibold md:text-base"
+          >
+            Dashboard
+          </Link>
+        </nav>
+        <CommandBar />
+      </header>
+      <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-10">
+        <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
+          <StatCard
+            title="Total Revenue"
+            value={45231.89}
+            prefix="$"
+            description="+20.1% from last month"
+          />
+          <StatCard
+            title="Subscriptions"
+            value={2350}
+            description="+19% from last month"
+          />
+          <StatCard
+            title="Sales"
+            value={12234}
+            description="+20.1% from last month"
+          />
+          <StatCard
+            title="Active Users"
+            value={573}
+            description="-1.2% from last month"
+          />
         </div>
-      </div>
+        <div className="grid gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3">
+          <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-2">
+            {/* Placeholder for future components */}
+          </div>
+          <div className="grid auto-rows-max items-start gap-4 md:gap-8">
+            {/* Placeholder for future components */}
+          </div>
+        </div>
+      </main>
     </div>
-  )
+  );
 }
