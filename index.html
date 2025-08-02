@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OmniTrack - Login</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <style>
+        body { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        main { max-width: 400px; width: 100%; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <main>
+        <article>
+            <h2 id="form-title">Login to OmniTrack</h2>
+            
+            <form id="login-form">
+                <label for="login-email">Email</label>
+                <input type="email" id="login-email" name="email" required>
+                <label for="login-password">Password</label>
+                <input type="password" id="login-password" name="password" required>
+                <button type="submit">Login</button>
+            </form>
+
+            <form id="signup-form" class="hidden">
+                <label for="signup-name">Name</label>
+                <input type="text" id="signup-name" name="name" required>
+                <label for="signup-email">Email</label>
+                <input type="email" id="signup-email" name="email" required>
+                <label for="signup-password">Password</label>
+                <input type="password" id="signup-password" name="password" required>
+                <button type="submit">Create Account</button>
+            </form>
+
+            <p id="error-message" style="color: red;"></p>
+            <a href="#" id="toggle-link">Don't have an account? Sign Up</a>
+        </article>
+    </main>
+
+    <script>
+        const loginForm = document.getElementById('login-form');
+        const signupForm = document.getElementById('signup-form');
+        const toggleLink = document.getElementById('toggle-link');
+        const formTitle = document.getElementById('form-title');
+        const errorMessage = document.getElementById('error-message');
+
+        toggleLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (loginForm.classList.contains('hidden')) {
+                loginForm.classList.remove('hidden');
+                signupForm.classList.add('hidden');
+                formTitle.textContent = 'Login to OmniTrack';
+                toggleLink.textContent = "Don't have an account? Sign Up";
+            } else {
+                loginForm.classList.add('hidden');
+                signupForm.classList.remove('hidden');
+                formTitle.textContent = 'Create an OmniTrack Account';
+                toggleLink.textContent = 'Already have an account? Login';
+            }
+        });
+
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            errorMessage.textContent = '';
+            const formData = new FormData(signupForm);
+            const data = Object.fromEntries(formData.entries());
+            
+            const response = await fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+
+            if (response.ok) {
+                alert('Account created successfully! Please login.');
+                toggleLink.click();
+            } else {
+                const error = await response.json();
+                errorMessage.textContent = error.error || 'Registration failed.';
+            }
+        });
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            errorMessage.textContent = '';
+            const formData = new FormData(loginForm);
+            const data = Object.fromEntries(formData.entries());
+
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+
+            if (response.ok) {
+                const { access_token } = await response.json();
+                localStorage.setItem('omnitrack_token', access_token);
+                window.location.href = '/dashboard';
+            } else {
+                errorMessage.textContent = 'Invalid email or password.';
+            }
+        });
+    </script>
+</body>
+</html>
