@@ -1,0 +1,30 @@
+{
+  "name": "omnitrack-dashboard",
+  "version": "1.0.0",
+  "description": "Advanced Business Dashboard with HTML, CSS, and JavaScript",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx serve .",
+    "build": "echo 'Build complete - static files ready'",
+    "start": "npx serve .",
+    "preview": "npx serve ."
+  },
+  "keywords": [
+    "dashboard",
+    "business",
+    "analytics",
+    "javascript",
+    "html",
+    "css"
+  ],
+  "author": "Deruz20",
+  "license": "MIT",
+  "devDependencies": {
+    "serve": "^14.2.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Deruz20/DeruzDev-"
+  },
+  "homepage": "https://github.com/Deruz20/DeruzDev-#readme"
+}
